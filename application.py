@@ -10,9 +10,11 @@ from nltk.stem.porter import PorterStemmer
 import os
 from lda_lib import topics
 import numpy as np
+import pandas as pd
+from scipy.special import kl_div
 
 punctuation_regex = '?:!.,;-'
-
+number_of_topics = 20
 
 #-----------------------------------
 # PRE PROCESSING
@@ -138,21 +140,13 @@ def convert_file_to_lda_c_file(filename, stop_words, dictionary, in_corpus=None)
 # LDA
 #-----------------------------
 def train_c_lda(dat_file_name):
-    subprocess.call("./lda_lib/lda est 0.1 20 ./lda_lib/settings.txt %s random ./lda_lib/model/" %dat_file_name, shell=True)
+    subprocess.call("./lda_lib/lda est 0.1 %d ./lda_lib/settings.txt %s random ./lda_lib/model/" %(number_of_topics, dat_file_name), shell=True)
 
 def inference_test_set(dat_file_name):
     subprocess.call("./lda_lib/lda inf ./lda_lib/settings.txt ./lda_lib/model/final %s ./lda_lib/test_output/test_inf" %dat_file_name, shell=True)
 
-#-----------------------------
-# DISTANCE MEASURES
-#-----------------------------
-def kl_dist(p, q):
-    '''
-    Expects 2 numpy arrays as input
-    '''
-    return sum(p * np.log10(p/q))
-
-def run():
+def train():
+    # don't train if we already have the fitness models
     if os.path.isfile('./lda_lib/test_output/test_inf-gamma.dat'):
         print('saved model found! Will not generate new one\nTo generate new model delete contents of ./lda_lib/test_output\n\n')
         return
@@ -173,12 +167,104 @@ def run():
     train_c_lda('./lda_lib/dat/train_arxiv.dat')
     inference_test_set('./lda_lib/dat/test_arxiv.dat')
 
+def index_test_docs():
+    print('indexing kl and js distance pairs...')
+    # load drichlets and turn into valid distribution
+    posterior_drichlets = pd.read_csv('/Users/waf/Developer/blei/lda_lib/test_output/test_inf-gamma.dat',sep=' ', names=[str(x) for x in range(0,20)])
+    posterior_drichlets = posterior_drichlets.div(posterior_drichlets.sum(axis=1), axis=0)
+
+    # generate nxn kl and js distances
+    kl_index = []
+    js_index = []
+
+    for a in posterior_drichlets.iterrows():
+        kl_row = []
+        js_row = []
+
+        for b in posterior_drichlets.iterrows():
+            # kl dist
+            kl_dist_val = kl_dist( a[1].values,  b[1].values)
+            kl_row.append(kl_dist_val)
+
+            # js dist
+            js_dist_val = js_dist( a[1].values,  b[1].values)
+            js_row.append(js_dist_val)
+
+        kl_index.append(kl_row)
+        js_index.append(js_row)
+
+    # return as dataframes for easy access
+    kl_index = pd.DataFrame(kl_index)
+    js_index = pd.DataFrame(js_index)
+    print('indexing complete')
+    return kl_index, js_index
+
+
+def get_article_ids(filename):
+    article_ids = []
+    for line in open(filename):
+        article_id = line.lower().split()[0]
+        article_ids.append(article_id)
+
+    ids_to_idx = {}
+    for i, item in enumerate(article_ids):
+        ids_to_idx[item] = i
+
+    return article_ids, ids_to_idx
+
 def start_fake_server():
-    print()
+    # distance indexes
+    kl_index, js_index = index_test_docs()
+
+    # resolve index <--> article id
+    index_to_article, article_to_index = get_article_ids('./data/test_arxiv.txt')
+
     while True:
-        testVar = raw_input("Enter doc id:  ")
-        print(testVar)    
+        # resolve doc index
+        doc_id = raw_input("Enter doc id:  ")
+        doc_index =  article_to_index[doc_id]
+
+        # find closest kl
+        closest_kl = kl_index.iloc[doc_index]
+        closest_kl.sort_values(inplace=True)
+        closest_kl = closest_kl[1:11]
+
+        # find closest js
+        closest_js = js_index.iloc[doc_index]
+        closest_js.sort_values(inplace=True)
+        closest_js = closest_js[1:11]
+
+        # print kl
+        print('------------------------------')
+        print('KL_closest...')
+        for i, kl_distance in closest_kl.iteritems():
+            print('%s %s %s' %(doc_id,index_to_article[i],kl_distance))
+
+        # print js
+        print('\n\n------------------------------')
+        print('JS_closest...')
+        for i, js_distance in closest_js.iteritems():
+            print('%s %s %s' %(doc_id,index_to_article[i],js_distance))
+
+#-----------------------------
+# DISTANCE MEASURES
+#-----------------------------
+def kl_dist(p, q):
+    '''
+    Expects 2 numpy arrays as input
+    Formula from: https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence
+    '''
+    return sum(p * np.log(p/q))
+
+def js_dist(p, q):
+    '''
+    Expects 2 numpy arrays as input
+    Formula from: https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence
+    '''
+    m = ((p + q)/2)
+    return (kl_dist(p, m)/2) + (kl_dist(q, m)/2)
+
 
 if __name__ == '__main__':
-    run()
+    train()
     start_fake_server()
