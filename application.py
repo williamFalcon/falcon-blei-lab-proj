@@ -153,6 +153,10 @@ def kl_dist(p, q):
     return sum(p * np.log10(p/q))
 
 def run():
+    if os.path.isfile('./lda_lib/test_output/test_inf-gamma.dat'):
+        print('saved model found! Will not generate new one\nTo generate new model delete contents of ./lda_lib/test_output\n\n')
+        return
+
     train_path = './data/train_arxiv.txt'
     test_path = './data/test_arxiv.txt'
 
@@ -169,7 +173,12 @@ def run():
     train_c_lda('./lda_lib/dat/train_arxiv.dat')
     inference_test_set('./lda_lib/dat/test_arxiv.dat')
 
+def start_fake_server():
+    print()
+    while True:
+        testVar = raw_input("Enter doc id:  ")
+        print(testVar)    
+
 if __name__ == '__main__':
     run()
-    #get_topic_words()
-    #inference_test_set()
+    start_fake_server()
