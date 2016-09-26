@@ -1,4 +1,4 @@
-# Falcon beli lab LDA interview project    
+# Falcon Blei lab LDA interview project    
 This project implements LDA on the arvix docs as requested in the email.    
 
 ## To run:    
