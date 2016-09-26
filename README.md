@@ -27,8 +27,6 @@ This project implements LDA on the arvix docs as requested in the email.
     - install and compile lda locally    
     - Copy the lda binary to falcon-blei-lab-proj/app/lda_lib/    
     - pip install -r requirements.txt        
-    - pip install scipy
-        - scipy is installed after requirements because it fails otherwise for some reason.    
 
 6. From root dir start the python cli server    
     ```bash
