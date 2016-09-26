@@ -1,9 +1,11 @@
 #!/usr/bin/python
+import flask
+from flask import Flask, Response, request, current_app, jsonify
 
 from app import lda_wrapper as lda
 from app.proximity_service import DistanceIndex
 
-
+application = Flask(__name__)
 def start_cli_server():
     idx = DistanceIndex()
 
@@ -30,4 +32,7 @@ def start_cli_server():
 
 if __name__ == '__main__':
     lda.train()
+
+    application.run(host='0.0.0.0')
+    
     start_cli_server()
