@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello World, AngularJS - ViralPatel.net</title>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js"></script>
+
+</head>
+<body>
+
+    <div ng-app="myApp" ng-controller="myCtrl"> 
+
+        <b>Type in document id to search:</b>
+        <input type="text" ng-model="docId"/>
+
+        <button ng-click="myFunc()">
+          Increment
+        </button>
+
+    </div>
+
+    <script>
+    var app = angular.module('myApp', []);
+
+    app.controller('myCtrl', function($scope, $http) {
+        $scope.getSimilar = function() {
+            var docId = $scope.docId;
+            var url = 
+
+            $http.get('')
+            .then(function(response) {
+                $scope.myWelcome = response.data;
+            });
+        };
+
+
+    });
+    </script>
+
+
+</body>
+</html>

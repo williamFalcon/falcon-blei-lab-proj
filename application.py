@@ -41,12 +41,24 @@ def status():
     resp = Response(js, status=200, mimetype='application/json')
     return resp
 
+@application.route('/api/v1.0/closest_to_doc')
+def closest_to_doc():
+    doc_id = request.args.get('doc_id')
+    results = application.distance_index.get_closest(doc_id, 10)
+    print(results)
+    js = json.dumps({'doc_id': doc_id, 'results': results})
+
+    resp = Response(js, status=200, mimetype='application/json')
+    return resp
 
 if __name__ == '__main__':
     print('training model... Will train once and use cached model thereafter')
     lda.train()
 
     if len(sys.argv) == 2:
+        with application.app_context():
+            application.distance_index = DistanceIndex()
+
         application.run(host='0.0.0.0')
     else:
         start_cli_server()
