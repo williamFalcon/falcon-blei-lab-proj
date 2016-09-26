@@ -9,9 +9,9 @@ class DistanceIndex:
     index_to_article = None
     article_to_index = None
 
-    def __init__(self):
+    def __init__(self, number_of_topics):
         self.__generate_article_ids_to_array_index_lookups()
-        self.__generate_distance_indexes()
+        self.__generate_distance_indexes(number_of_topics)
 
     #-----------------------------
     # PUBLIC API
@@ -50,16 +50,17 @@ class DistanceIndex:
     #-----------------------------
     # DISTANCE INDEXING
     #-----------------------------
-    def __generate_distance_indexes(self):
-        kl_index, js_index = self.__index_test_docs()
+    def __generate_distance_indexes(self, number_of_topics):
+        kl_index, js_index = self.__index_test_docs(number_of_topics)
         self.kl_distances = kl_index
         self.js_distances = js_index
 
-    def __index_test_docs(self):
+    def __index_test_docs(self, number_of_topics):
         print('indexing kl and js distance pairs...')
         # load drichlets and turn into valid distribution
         gamma_path = self.__current_dir_path('/lda_lib/test_output/test_inf-gamma.dat')
-        posterior_drichlets = pd.read_csv(gamma_path, sep=' ', names=[str(x) for x in range(0,20)])
+
+        posterior_drichlets = pd.read_csv(gamma_path, sep=' ', names=[str(x) for x in range(0, number_of_topics)])
         posterior_drichlets = posterior_drichlets.div(posterior_drichlets.sum(axis=1), axis=0)
 
         # generate nxn kl and js distances

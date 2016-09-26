@@ -8,8 +8,10 @@ from app.proximity_service import DistanceIndex
 import sys
 
 application = Flask(__name__)
+number_of_topics = 10
+
 def start_cli_server():
-    idx = DistanceIndex()
+    idx = DistanceIndex(number_of_topics)
 
     while True:
         # resolve doc index
@@ -53,11 +55,11 @@ def closest_to_doc():
 
 if __name__ == '__main__':
     print('training model... Will train once and use cached model thereafter')
-    lda.train()
+    lda.train(number_of_topics)
 
     if len(sys.argv) == 2:
         with application.app_context():
-            application.distance_index = DistanceIndex()
+            application.distance_index = DistanceIndex(number_of_topics)
 
         application.run(host='0.0.0.0')
     else:

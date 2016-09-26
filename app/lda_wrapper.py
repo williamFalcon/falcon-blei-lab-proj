@@ -8,12 +8,10 @@ import pandas as pd
 from scipy.special import kl_div
 import corpus_processor
 
-number_of_topics = 10
-
 #--------------------------------
 # PUBLIC API
 #--------------------------------
-def train():
+def train(number_of_topics):
     full_path = os.path.dirname(os.path.realpath(__file__))
 
     # don't train if we already have the fitness models
@@ -28,7 +26,7 @@ def train():
     corpus_processor.generate_lda_c_files(train_path, test_path)
 
     # train & inference
-    _train_c_lda('/lda_lib/dat/train_arxiv.dat')
+    _train_c_lda('/lda_lib/dat/train_arxiv.dat', number_of_topics)
     _inference_test_set('/lda_lib/dat/test_arxiv.dat')
 
 
@@ -39,7 +37,7 @@ def _current_dir_path(path):
     full_path = os.path.dirname(os.path.realpath(__file__))
     return full_path + path
 
-def _train_c_lda(dat_file_name):
+def _train_c_lda(dat_file_name, number_of_topics):
     # format cli request
     lda_bin = _current_dir_path('/lda_lib/lda')
     settings = _current_dir_path('/lda_lib/settings.txt')
