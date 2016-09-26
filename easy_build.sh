@@ -10,5 +10,8 @@ cp ./lda-c/lda ./app/lda_lib/
 rm -rf lda-c
 echo 'cleaning up. lda bin copied to ./app/lda_lib/'
 
+echo 'installing deps'
+pip install -r requirements.txt    
+
 echo 'starting python application'
 python application.py
