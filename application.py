@@ -8,7 +8,7 @@ from app.proximity_service import DistanceIndex
 import sys
 
 application = Flask(__name__)
-number_of_topics = 10
+number_of_topics = 200
 
 def start_cli_server():
     idx = DistanceIndex(number_of_topics)
