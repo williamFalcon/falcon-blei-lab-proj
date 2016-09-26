@@ -8,32 +8,33 @@ from collections import Counter
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 import os
-from lda_lib import topics
 import numpy as np
 import pandas as pd
-from scipy.special import kl_div
+
+from app import lda_wrapper as lda
 
 punctuation_regex = '?:!.,;-'
 number_of_topics = 20
 
-#-----------------------------------
+# -----------------------------------
 # PRE PROCESSING
-#-----------------------------------
+# -----------------------------------
+
 def pre_process_doc(doc, stop_words, stemmer):
     tokens = []
     for token in doc:
         formatted_token = strip_end_punctuation(token)
         long_enough = len(formatted_token) > 1
         white_listed = token not in stop_words
-        
+
         if long_enough and white_listed:
             formatted_token = stemmer.stem(formatted_token)
             tokens.append(formatted_token)
-    
-    return tokens
-    
 
-def get_words_to_ignore(fname, english_stop_words, apply_stopwords=True):    
+    return tokens
+
+
+def get_words_to_ignore(fname, english_stop_words, apply_stopwords=True):
     '''
     Create stop list based on content. 
     Ignore top 50 most common and all that appear only once.
@@ -43,13 +44,13 @@ def get_words_to_ignore(fname, english_stop_words, apply_stopwords=True):
     counter = Counter()
     for line in open(fname):
         tokens = line.lower().split()
-        
+
         #ignore doc ids        
         tokens = tokens[2:]
-        
+
         # remove punctuation and spacing
         tokens = [strip_end_punctuation(token) for token in tokens]
-    
+
         # remove stop words if requested
         if apply_stopwords:
             tokens = [token for token in tokens if token not in english_stop_words]
@@ -61,7 +62,7 @@ def get_words_to_ignore(fname, english_stop_words, apply_stopwords=True):
 
     # ignore words len <= 1 or that occur only once
     single_occurence_words = [word for word, value in counter.iteritems() if value == 1 or len(word) <= 1]
-    
+
     return list(set(most_common_words + single_occurence_words))
 
 
@@ -77,9 +78,6 @@ def strip_end_punctuation(word):
         changed = original != len(clean_word)
     return clean_word
 
-def get_topic_words():
-    topic_results = topics.print_topics('./lda_lib/model/final.beta', './lda_lib/dat/vocab.txt')
-    print(topic_results)
 
 def generate_stop_words(filename):
     # for our stop words we'll use standard stopwords and local context stopwords
@@ -92,7 +90,7 @@ def generate_stop_words(filename):
 def generate_corpus(filename, stop_words):
     print('generating corpus for %s ' %filename)
     name = filename.split('.')[1].split('/')[-1]
-    
+
     # generate corpus with cleaned words
     print('tokenizing %s set...' %name)
     stemmer = PorterStemmer()
@@ -266,5 +264,6 @@ def js_dist(p, q):
 
 
 if __name__ == '__main__':
-    train()
-    start_fake_server()
+    lda.train()
+    # train()
+    # start_fake_server()
