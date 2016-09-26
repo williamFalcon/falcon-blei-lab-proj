@@ -8,7 +8,7 @@ import pandas as pd
 from scipy.special import kl_div
 import corpus_processor
 
-number_of_topics = 20
+number_of_topics = 200
 
 #--------------------------------
 # PUBLIC API

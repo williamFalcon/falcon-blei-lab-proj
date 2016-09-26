@@ -10,7 +10,7 @@ def start_cli_server():
     while True:
         # resolve doc index
         doc_id = raw_input("Enter doc id:  ")
-        results = idx.get_closest(doc_id)
+        results = idx.get_closest(doc_id, 10)
         if 'error' in results:
             print('error. Enter a valid document id')
             print(results['error'])

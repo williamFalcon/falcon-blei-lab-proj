@@ -28,7 +28,6 @@ nbformat==4.1.0
 nltk==3.2.1
 numpy==1.11.1
 pandas==0.18.1
-path.py==0.0.0
 pathlib2==2.1.0
 pep8==1.7.0
 pexpect==4.0.1

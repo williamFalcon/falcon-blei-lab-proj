@@ -16,19 +16,19 @@ class DistanceIndex:
     #-----------------------------
     # PUBLIC API
     #-----------------------------
-    def get_closest(self, doc_id):
+    def get_closest(self, doc_id, n):
         try:
             doc_index = self.article_to_index[doc_id]
 
             # find closest kl
             closest_kl = self.kl_distances.iloc[doc_index]
             closest_kl.sort_values(inplace=True)
-            closest_kl = closest_kl[1:11]
+            closest_kl = closest_kl[1:n + 1]
 
             # find closest js
             closest_js = self.js_distances.iloc[doc_index]
             closest_js.sort_values(inplace=True)
-            closest_js = closest_js[1:11]
+            closest_js = closest_js[1:n + 1]
 
             # generate kl
             kl_results = []
@@ -43,7 +43,7 @@ class DistanceIndex:
                 js_results.append(result)
 
             return {'closest_kl': kl_results, 'closest_js': js_results}
-            
+
         except Exception as e:
             return {'error': e}
 
