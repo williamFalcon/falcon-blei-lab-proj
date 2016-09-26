@@ -4,9 +4,9 @@ from app import lda_wrapper as lda
 from app.proximity_service import DistanceIndex
 
 
-def start_fake_server():
-
+def start_cli_server():
     idx = DistanceIndex()
+
     while True:
         # resolve doc index
         doc_id = raw_input("Enter doc id:  ")
@@ -30,4 +30,4 @@ def start_fake_server():
 
 if __name__ == '__main__':
     lda.train()
-    start_fake_server()
+    start_cli_server()
