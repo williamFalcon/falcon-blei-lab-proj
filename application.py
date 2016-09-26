@@ -1,9 +1,11 @@
 #!/usr/bin/python
 import flask
 from flask import Flask, Response, request, current_app, jsonify
+import json
 
 from app import lda_wrapper as lda
 from app.proximity_service import DistanceIndex
+import sys
 
 application = Flask(__name__)
 def start_cli_server():
@@ -29,10 +31,22 @@ def start_cli_server():
 
             print('\n\n')
 
+#-------------------------
+# REST API
+#-------------------------
+@application.route('/api/v1.0/status')
+def status():
+    data = {'status': 'ok', 'version': 1.0, 'description': 'REST API for blei project'}
+    js = json.dumps(data)
+    resp = Response(js, status=200, mimetype='application/json')
+    return resp
+
 
 if __name__ == '__main__':
+    print('training model... Will train once and use cached model thereafter')
     lda.train()
 
-    application.run(host='0.0.0.0')
-    
-    start_cli_server()
+    if len(sys.argv) == 2:
+        application.run(host='0.0.0.0')
+    else:
+        start_cli_server()
