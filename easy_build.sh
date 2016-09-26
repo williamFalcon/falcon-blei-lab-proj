@@ -1,3 +1,7 @@
+#upgrade pip
+echo 'upgrading pip'
+pip install --upgrade pip
+
 # clone lda repo
 echo 'loading lda-c library' 
 git clone https://github.com/blei-lab/lda-c.git
@@ -11,7 +15,7 @@ rm -rf lda-c
 echo 'cleaning up. lda bin copied to ./app/lda_lib/'
 
 echo 'installing deps'
-pip install -r requirements.txt    
+pip install -r requirements.txt   
 
 echo 'starting python application'
 python application.py
