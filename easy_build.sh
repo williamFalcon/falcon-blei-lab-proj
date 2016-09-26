@@ -11,7 +11,10 @@ rm -rf lda-c
 echo 'cleaning up. lda bin copied to ./app/lda_lib/'
 
 echo 'installing deps'
-pip install -r requirements.txt    
+pip install -r requirements.txt   
+
+echo 'installing scipy'
+pip install scipy 
 
 echo 'starting python application'
 python application.py
